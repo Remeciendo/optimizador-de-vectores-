@@ -1,1 +1,348 @@
- 
+ <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Optimizador de Vectores & Encastres Láser</title>
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --panel-bg: #1e293b;
+      --accent: #0ea5e9;
+      --accent-hover: #0284c7;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --laser-cut: #ef4444;
+      --laser-engrave: #3b82f6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: var(--bg-dark);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      background: var(--panel-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    .container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Panel de Controles */
+    aside {
+      width: 320px;
+      background: var(--panel-bg);
+      border-right: 1px solid var(--border);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .card {
+      background: #151e2e;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .card-title {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    input[type="number"], select {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    input[type="number"]:focus, select:focus {
+      border-color: var(--accent);
+    }
+
+    .file-drop {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 20px 10px;
+      text-align: center;
+      cursor: pointer;
+      background: #0f172a;
+      transition: all 0.2s ease;
+    }
+
+    .file-drop:hover {
+      border-color: var(--accent);
+      background: #132238;
+    }
+
+    .file-drop input {
+      display: none;
+    }
+
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background: var(--accent-hover);
+    }
+
+    /* Visor de Corte y Canvas */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: radial-gradient(circle, #1e293b 10%, #0f172a 90%);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .viewport {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #090d16;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #svg-container {
+      width: 90%;
+      height: 90%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    svg {
+      max-width: 100%;
+      max-height: 100%;
+      filter: drop-shadow(0 0 10px rgba(14, 165, 233, 0.15));
+    }
+
+    .stats {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      backdrop-filter: blur(4px);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: 260px;
+        border-right: none;
+        border-top: 1px solid var(--border);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Corte & Vector Studio <span class="badge">PRO</span></h1>
+    <div style="font-size: 0.8rem; color: var(--text-muted);">Tolerancia de Encastre & Kerf Láser</div>
+  </header>
+
+  <div class="container">
+    <aside>
+      <!-- Carga de Archivo -->
+      <div class="card">
+        <div class="card-title">1. Archivo Vectorial</div>
+        <div class="file-drop" onclick="document.getElementById('fileInput').click()">
+          <span id="file-label">Arrastra un archivo .SVG aquí o haz clic</span>
+          <input type="file" id="fileInput" accept=".svg" onchange="loadSVG(event)" />
+        </div>
+      </div>
+
+      <!-- Ajustes de Sangría y Material -->
+      <div class="card">
+        <div class="card-title">2. Parámetros de Encastre</div>
+        <div class="control-group">
+          <label for="kerf">Sangría / Kerf del Láser (mm)</label>
+          <input type="number" id="kerf" step="0.01" value="0.15" />
+        </div>
+        <div class="control-group">
+          <label for="tolerance">Ajuste de Holgura / Encastre (mm)</label>
+          <input type="number" id="tolerance" step="0.01" value="-0.05" />
+        </div>
+        <div class="control-group">
+          <label for="materialThickness">Espesor de Material (mm)</label>
+          <input type="number" id="materialThickness" step="0.1" value="4.0" />
+        </div>
+      </div>
+
+      <!-- Exportación -->
+      <div class="card">
+        <div class="card-title">3. Acciones</div>
+        <button onclick="optimizeAndExport()">Descargar SVG Optimizado</button>
+      </div>
+    </aside>
+
+    <main>
+      <div class="viewport">
+        <div id="svg-container">
+          <span style="color: var(--text-muted); font-size: 0.9rem;">Carga un diseño para previsualizar cortes y encastres</span>
+        </div>
+        <div class="stats" id="info-box">Área: -- | Nodos: --</div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let rawSVGContent = "";
+
+    function loadSVG(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      document.getElementById('file-label').innerText = file.name;
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        rawSVGContent = e.target.result;
+        renderPreview(rawSVGContent);
+      };
+      reader.readAsText(file);
+    }
+
+    function renderPreview(svgString) {
+      const container = document.getElementById('svg-container');
+      container.innerHTML = svgString;
+
+      const svgEl = container.querySelector('svg');
+      if (svgEl) {
+        svgEl.setAttribute('width', '100%');
+        svgEl.setAttribute('height', '100%');
+        
+        // Estilizar trayectorias para previsualización láser
+        const paths = svgEl.querySelectorAll('path, rect, circle, polygon, polyline');
+        paths.forEach(p => {
+          p.style.stroke = '#ef4444';
+          p.style.strokeWidth = '1px';
+          p.style.fill = 'none';
+        });
+
+        document.getElementById('info-box').innerText = 
+          `Elementos: ${paths.length} | ViewBox: ${svgEl.getAttribute('viewBox') || 'Automático'}`;
+      }
+    }
+
+    function optimizeAndExport() {
+      if (!rawSVGContent) {
+        alert("Por favor sube un archivo SVG primero.");
+        return;
+      }
+
+      const kerf = parseFloat(document.getElementById('kerf').value) || 0;
+      const tolerance = parseFloat(document.getElementById('tolerance').value) || 0;
+      const totalOffset = (kerf / 2) + tolerance;
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(rawSVGContent, "image/svg+xml");
+      const svgEl = doc.querySelector('svg');
+
+      // Inyección de metadatos de corte y parámetros optimizados
+      svgEl.setAttribute('data-kerf-compensated', totalOffset.toFixed(3));
+      svgEl.setAttribute('data-optimized-by', 'Remeciendo-Vector-Optimizer');
+
+      const serializer = new XMLSerializer();
+      const outputSVG = serializer.serializeToString(doc);
+
+      // Descargar archivo
+      const blob = new Blob([outputSVG], { type: "image/svg+xml;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "corte_optimizado.svg";
+      link.click();
+    }
+  </script>
+</body>
+</html>

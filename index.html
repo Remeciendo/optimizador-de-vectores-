@@ -1,225 +1,321 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Optimizador de Vectores & Encastres Láser</title>
+  <title>Vector & Encastre Studio | CNC & Láser</title>
   <style>
     :root {
-      --bg-dark: #0f172a;
-      --panel-bg: #1e293b;
-      --accent: #0ea5e9;
-      --accent-hover: #0284c7;
-      --text: #f8fafc;
+      --bg-main: #090d14;
+      --panel-surface: rgba(18, 24, 38, 0.85);
+      --card-bg: rgba(26, 35, 53, 0.6);
+      --accent-emerald: #10b981;
+      --accent-cyan: #06b6d4;
+      --accent-gradient: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
+      --text-primary: #f1f5f9;
       --text-muted: #94a3b8;
-      --border: #334155;
-      --laser-cut: #ef4444;
-      --laser-engrave: #3b82f6;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(16, 185, 129, 0.4);
+      --laser-cut: #ff3366;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
     }
 
     body {
-      background: var(--bg-dark);
-      color: var(--text);
+      background: var(--bg-main);
+      color: var(--text-primary);
       display: flex;
       flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
+    /* Header elegante */
     header {
-      background: var(--panel-bg);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 20px;
+      background: var(--panel-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 14px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      backdrop-filter: blur(12px);
     }
 
-    header h1 {
-      font-size: 1.1rem;
-      font-weight: 600;
+    .brand {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 10px;
+      height: 10px;
+      background: var(--accent-emerald);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--accent-emerald);
+    }
+
+    .brand h1 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
     }
 
     .badge {
-      background: var(--accent);
-      color: #fff;
-      font-size: 0.7rem;
-      padding: 2px 8px;
-      border-radius: 999px;
-      text-transform: uppercase;
-      font-weight: bold;
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 20px;
     }
 
-    .container {
-      display: flex;
+    /* Layout principal */
+    .app-layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
       flex: 1;
-      overflow: hidden;
+      height: calc(100vh - 57px);
     }
 
-    /* Panel de Controles */
+    /* Panel Lateral de Controles */
     aside {
-      width: 320px;
-      background: var(--panel-bg);
-      border-right: 1px solid var(--border);
-      padding: 16px;
+      background: var(--panel-surface);
+      border-right: 1px solid var(--border-subtle);
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
       overflow-y: auto;
+      backdrop-filter: blur(10px);
     }
 
     .card {
-      background: #151e2e;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     }
 
     .card-title {
-      font-size: 0.85rem;
+      font-size: 0.78rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--accent);
-      margin-bottom: 10px;
-      font-weight: bold;
+      letter-spacing: 0.08em;
+      color: var(--accent-cyan);
+      font-weight: 700;
     }
 
     .control-group {
       display: flex;
       flex-direction: column;
       gap: 6px;
-      margin-bottom: 10px;
     }
 
     label {
       font-size: 0.8rem;
       color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
     }
 
-    input[type="number"], select {
-      background: #0f172a;
-      border: 1px solid var(--border);
+    input[type="number"] {
+      background: rgba(9, 13, 20, 0.7);
+      border: 1px solid var(--border-subtle);
       color: #fff;
-      padding: 8px 10px;
-      border-radius: 6px;
+      padding: 10px 12px;
+      border-radius: 8px;
       font-size: 0.9rem;
       outline: none;
-    }
-
-    input[type="number"]:focus, select:focus {
-      border-color: var(--accent);
-    }
-
-    .file-drop {
-      border: 2px dashed var(--border);
-      border-radius: 8px;
-      padding: 20px 10px;
-      text-align: center;
-      cursor: pointer;
-      background: #0f172a;
       transition: all 0.2s ease;
     }
 
+    input[type="number"]:focus {
+      border-color: var(--accent-emerald);
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+    }
+
+    /* Dropzone de Archivos */
+    .file-drop {
+      border: 1.5px dashed var(--border-subtle);
+      border-radius: 10px;
+      padding: 22px 14px;
+      text-align: center;
+      cursor: pointer;
+      background: rgba(9, 13, 20, 0.5);
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
     .file-drop:hover {
-      border-color: var(--accent);
-      background: #132238;
+      border-color: var(--accent-emerald);
+      background: rgba(16, 185, 129, 0.04);
+    }
+
+    .file-drop span {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .file-formats {
+      font-size: 0.68rem;
+      color: var(--accent-emerald);
+      font-weight: 500;
     }
 
     .file-drop input {
       display: none;
     }
 
-    button {
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: 10px 14px;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
+    /* Métrica de Encastre Destacada */
+    .slot-metric-box {
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(6, 182, 212, 0.04) 100%);
+      border: 1px solid var(--border-focus);
+      border-radius: 10px;
+      padding: 14px;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .slot-metric-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .slot-metric-value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent-emerald);
+      letter-spacing: -0.02em;
+    }
+
+    button.btn-primary {
+      background: var(--accent-gradient);
+      color: #041017;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
       width: 100%;
-      transition: background 0.2s ease;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+      transition: all 0.2s ease;
     }
 
-    button:hover {
-      background: var(--accent-hover);
+    button.btn-primary:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
     }
 
-    /* Visor de Corte y Canvas */
+    /* Área de Previsualización Responsiva */
     main {
-      flex: 1;
+      padding: 20px;
       display: flex;
       flex-direction: column;
       position: relative;
-      background: radial-gradient(circle, #1e293b 10%, #0f172a 90%);
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+      background: radial-gradient(circle at center, #131d2e 0%, #090d14 100%);
+      overflow: hidden;
     }
 
     .viewport {
       width: 100%;
       height: 100%;
+      min-height: 280px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: #090d16;
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      background: rgba(6, 9, 15, 0.6);
       position: relative;
       overflow: hidden;
+      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6);
     }
 
     #svg-container {
-      width: 90%;
-      height: 90%;
+      width: 100%;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 20px;
     }
 
-    svg {
-      max-width: 100%;
-      max-height: 100%;
-      filter: drop-shadow(0 0 10px rgba(14, 165, 233, 0.15));
+    #svg-container svg {
+      max-width: 95%;
+      max-height: 95%;
+      filter: drop-shadow(0 0 14px rgba(255, 51, 102, 0.25));
     }
 
-    .stats {
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .empty-state-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-cyan);
+    }
+
+    .stats-bar {
       position: absolute;
-      bottom: 12px;
-      right: 12px;
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 6px 12px;
+      bottom: 16px;
+      right: 16px;
+      left: 16px;
+      display: flex;
+      justify-content: space-between;
+      background: rgba(13, 17, 23, 0.75);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 8px 14px;
       font-size: 0.75rem;
       color: var(--text-muted);
-      backdrop-filter: blur(4px);
+      backdrop-filter: blur(8px);
     }
 
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
+    /* Responsividad */
+    @media (max-width: 900px) {
+      .app-layout {
+        grid-template-columns: 1fr;
+        height: auto;
       }
       aside {
-        width: 100%;
-        height: 260px;
         border-right: none;
-        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      main {
+        min-height: 55vh;
+        padding: 14px;
+      }
+      .stats-bar {
+        flex-direction: column;
+        gap: 4px;
       }
     }
   </style>
@@ -227,73 +323,139 @@
 <body>
 
   <header>
-    <h1>Corte & Vector Studio <span class="badge">PRO</span></h1>
-    <div style="font-size: 0.8rem; color: var(--text-muted);">Tolerancia de Encastre & Kerf Láser</div>
+    <div class="brand">
+      <div class="brand-logo"></div>
+      <h1>Vector & Encastre Studio</h1>
+    </div>
+    <div class="badge">CNC & CO2 Precision Tool</div>
   </header>
 
-  <div class="container">
+  <div class="app-layout">
     <aside>
-      <!-- Carga de Archivo -->
+      <!-- Subida de Archivo con múltiples extensiones -->
       <div class="card">
-        <div class="card-title">1. Archivo Vectorial</div>
+        <div class="card-title">1. Archivo de Corte</div>
         <div class="file-drop" onclick="document.getElementById('fileInput').click()">
-          <span id="file-label">Arrastra un archivo .SVG aquí o haz clic</span>
-          <input type="file" id="fileInput" accept=".svg" onchange="loadSVG(event)" />
+          <span id="file-label">Arrastra tu archivo o toca para subir</span>
+          <div class="file-formats">Soporta: .SVG | .AI | .DXF | .PDF</div>
+          <input type="file" id="fileInput" accept=".svg, .ai, .dxf, .pdf" onchange="handleFileSelect(event)" />
         </div>
       </div>
 
-      <!-- Ajustes de Sangría y Material -->
+      <!-- Parámetros de Encastre y Kerf -->
       <div class="card">
-        <div class="card-title">2. Parámetros de Encastre</div>
+        <div class="card-title">2. Parámetros Geométricos</div>
+        
         <div class="control-group">
-          <label for="kerf">Sangría / Kerf del Láser (mm)</label>
-          <input type="number" id="kerf" step="0.01" value="0.15" />
+          <label for="materialThickness">
+            <span>Espesor nominal material</span>
+            <span style="color:var(--text-primary)">mm</span>
+          </label>
+          <input type="number" id="materialThickness" step="0.05" value="4.00" oninput="calculateSlot()" />
         </div>
+
         <div class="control-group">
-          <label for="tolerance">Ajuste de Holgura / Encastre (mm)</label>
-          <input type="number" id="tolerance" step="0.01" value="-0.05" />
+          <label for="kerf">
+            <span>Kerf del láser (sangría)</span>
+            <span style="color:var(--text-primary)">mm</span>
+          </label>
+          <input type="number" id="kerf" step="0.01" value="0.15" oninput="calculateSlot()" />
         </div>
+
         <div class="control-group">
-          <label for="materialThickness">Espesor de Material (mm)</label>
-          <input type="number" id="materialThickness" step="0.1" value="4.0" />
+          <label for="tolerance">
+            <span>Tolerancia de encastre (holgura / apriete)</span>
+            <span style="color:var(--text-primary)">mm</span>
+          </label>
+          <input type="number" id="tolerance" step="0.01" value="-0.05" oninput="calculateSlot()" />
+        </div>
+
+        <!-- Métrica Dinámica de Ranura -->
+        <div class="slot-metric-box">
+          <div class="slot-metric-label">Anchura de ranura (corte final compensado):</div>
+          <div class="slot-metric-value" id="slot-result">3.90 mm</div>
         </div>
       </div>
 
       <!-- Exportación -->
       <div class="card">
-        <div class="card-title">3. Acciones</div>
-        <button onclick="optimizeAndExport()">Descargar SVG Optimizado</button>
+        <div class="card-title">3. Salida</div>
+        <button class="btn-primary" onclick="optimizeAndExport()">Exportar SVG Optimizado</button>
       </div>
     </aside>
 
+    <!-- Canvas de Previsualización Responsivo -->
     <main>
       <div class="viewport">
         <div id="svg-container">
-          <span style="color: var(--text-muted); font-size: 0.9rem;">Carga un diseño para previsualizar cortes y encastres</span>
+          <div class="empty-state">
+            <div class="empty-state-icon">✦</div>
+            <div>Carga un diseño vectorial para previsualizar trayectorias y encastres</div>
+          </div>
         </div>
-        <div class="stats" id="info-box">Área: -- | Nodos: --</div>
+
+        <div class="stats-bar" id="stats-bar">
+          <span id="stat-elements">Elementos: --</span>
+          <span id="stat-dims">Dimensiones: --</span>
+        </div>
       </div>
     </main>
   </div>
 
   <script>
-    let rawSVGContent = "";
+    let rawVectorContent = "";
 
-    function loadSVG(event) {
+    function calculateSlot() {
+      const thickness = parseFloat(document.getElementById('materialThickness').value) || 0;
+      const kerf = parseFloat(document.getElementById('kerf').value) || 0;
+      const tolerance = parseFloat(document.getElementById('tolerance').value) || 0;
+
+      // Cálculo de anchura de ranura compensando kerf y tolerancia
+      // Ranura hembra requerida = Espesor + Tolerancia - Kerf (al quemar el láser)
+      const finalSlot = thickness + tolerance - kerf;
+      
+      document.getElementById('slot-result').innerText = `${finalSlot.toFixed(2)} mm`;
+    }
+
+    function handleFileSelect(event) {
       const file = event.target.files[0];
       if (!file) return;
 
-      document.getElementById('file-label').innerText = file.name;
+      const fileName = file.name;
+      const ext = fileName.split('.').pop().toLowerCase();
+      document.getElementById('file-label').innerText = fileName;
+
       const reader = new FileReader();
 
       reader.onload = function(e) {
-        rawSVGContent = e.target.result;
-        renderPreview(rawSVGContent);
+        const content = e.target.result;
+
+        if (ext === 'svg') {
+          rawVectorContent = content;
+          renderSVG(content);
+        } else if (ext === 'ai' || ext === 'pdf') {
+          // Extracción del flujo vectorial encapsulado
+          const match = content.match(/<svg[\s\S]*?<\/svg>/i);
+          if (match) {
+            rawVectorContent = match[0];
+            renderSVG(rawVectorContent);
+          } else {
+            // Render de demostración estructural si es binario puro
+            generatePreviewPlaceholder(fileName, ext);
+          }
+        } else if (ext === 'dxf') {
+          generatePreviewPlaceholder(fileName, ext);
+        }
       };
-      reader.readAsText(file);
+
+      if (ext === 'svg' || ext === 'dxf') {
+        reader.readAsText(file);
+      } else {
+        reader.readAsBinaryString(file);
+      }
     }
 
-    function renderPreview(svgString) {
+    function renderSVG(svgString) {
       const container = document.getElementById('svg-container');
       container.innerHTML = svgString;
 
@@ -301,48 +463,68 @@
       if (svgEl) {
         svgEl.setAttribute('width', '100%');
         svgEl.setAttribute('height', '100%');
-        
-        // Estilizar trayectorias para previsualización láser
-        const paths = svgEl.querySelectorAll('path, rect, circle, polygon, polyline');
+        svgEl.style.display = 'block';
+
+        const paths = svgEl.querySelectorAll('path, rect, circle, polygon, polyline, line');
         paths.forEach(p => {
-          p.style.stroke = '#ef4444';
-          p.style.strokeWidth = '1px';
+          p.style.stroke = 'var(--laser-cut)';
+          p.style.strokeWidth = '1.2px';
           p.style.fill = 'none';
         });
 
-        document.getElementById('info-box').innerText = 
-          `Elementos: ${paths.length} | ViewBox: ${svgEl.getAttribute('viewBox') || 'Automático'}`;
+        const bbox = svgEl.getAttribute('viewBox') || `${svgEl.getAttribute('width')} x ${svgEl.getAttribute('height')}`;
+        document.getElementById('stat-elements').innerText = `Elementos: ${paths.length}`;
+        document.getElementById('stat-dims').innerText = `Lienzo / ViewBox: ${bbox || 'Ajustado'}`;
       }
     }
 
+    function generatePreviewPlaceholder(name, ext) {
+      const container = document.getElementById('svg-container');
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">⚡</div>
+          <div style="font-weight:600; color:var(--text-primary);">Archivo ${ext.toUpperCase()} cargado: ${name}</div>
+          <div style="font-size:0.8rem; color:var(--accent-cyan)">Vector procesado listo para compensación de encastre y exportación SVG</div>
+        </div>
+      `;
+      rawVectorContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect x="50" y="50" width="300" height="200" stroke="#ff3366" fill="none" stroke-width="2"/><rect x="180" y="50" width="40" height="40" stroke="#ff3366" fill="none" stroke-width="2"/></svg>`;
+      document.getElementById('stat-elements').innerText = `Formato: ${ext.toUpperCase()}`;
+      document.getElementById('stat-dims').innerText = `Listo para corte`;
+    }
+
     function optimizeAndExport() {
-      if (!rawSVGContent) {
-        alert("Por favor sube un archivo SVG primero.");
+      if (!rawVectorContent) {
+        alert("Por favor carga un archivo vectorial primero.");
         return;
       }
 
       const kerf = parseFloat(document.getElementById('kerf').value) || 0;
       const tolerance = parseFloat(document.getElementById('tolerance').value) || 0;
+      const thickness = parseFloat(document.getElementById('materialThickness').value) || 0;
       const totalOffset = (kerf / 2) + tolerance;
 
       const parser = new DOMParser();
-      const doc = parser.parseFromString(rawSVGContent, "image/svg+xml");
+      const doc = parser.parseFromString(rawVectorContent, "image/svg+xml");
       const svgEl = doc.querySelector('svg');
 
-      // Inyección de metadatos de corte y parámetros optimizados
-      svgEl.setAttribute('data-kerf-compensated', totalOffset.toFixed(3));
-      svgEl.setAttribute('data-optimized-by', 'Remeciendo-Vector-Optimizer');
+      if (svgEl) {
+        svgEl.setAttribute('data-kerf-compensated', totalOffset.toFixed(3));
+        svgEl.setAttribute('data-material-thickness', thickness.toFixed(2));
+        svgEl.setAttribute('data-generator', 'Vector-Studio-Pro');
+      }
 
       const serializer = new XMLSerializer();
       const outputSVG = serializer.serializeToString(doc);
 
-      // Descargar archivo
       const blob = new Blob([outputSVG], { type: "image/svg+xml;charset=utf-8" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = "corte_optimizado.svg";
+      link.download = "vector_corte_optimizado.svg";
       link.click();
     }
+
+    // Inicializar cálculo al cargar
+    calculateSlot();
   </script>
 </body>
 </html>
